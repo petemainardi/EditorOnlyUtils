@@ -1,0 +1,16 @@
+{
+  "name": "com.editoronly.utils",
+  "displayName": "Editor Only Utils",
+  "description": "A collection of tools for the Unity editor.",
+  "version": "0.0.1",
+  "unity": "2019.3",
+  "keywords": [
+    "library",
+    "utility"
+  ],
+  "author": {
+    "name": "Pete Mainardi",
+    "url": ""
+  },
+  "type": "library"
+}
