@@ -33,9 +33,10 @@ namespace EditorOnlyUtils
         public static void RenameEnumerated()
 		{
 			UnityEngine.Object[] objects = Selection.objects;
-			int offset = 1;
+			Undo.RecordObjects(objects, "Bulk Rename");
 
-            string firstName = objects[0].name;
+			int offset = 0;
+            string firstName = objects[offset].name;
 			Match match = new Regex(@"\s\([0-9]+\)(?!.+)").Match(firstName); // ends with " (#)"
             if (match.Success)
             {
@@ -48,7 +49,7 @@ namespace EditorOnlyUtils
 
             for (int i = 1; i < objects.Length; i++)
 			{
-				objects[i].name = $"{firstName}({offset + i})";
+				objects[i].name = $"{firstName.TrimEnd()} ({offset + i})";
 			}
 		}
 
@@ -59,13 +60,14 @@ namespace EditorOnlyUtils
         public static void ClearEnumerationSuffix()
         {
             UnityEngine.Object[] objects = Selection.objects;
+            Undo.RecordObjects(objects, "Bulk Rename");
 
             for (int i = 0; i < objects.Length; i++)
             {
                 Match match = new Regex(@"\s\([0-9]+\)(?!.+)").Match(objects[i].name); // ends with " (#)"
                 if (match.Success)
                 {
-					objects[i].name = objects[i].name.Substring(0, objects[i].name.LastIndexOf('('));
+					objects[i].name = objects[i].name.Substring(0, objects[i].name.LastIndexOf('(')).TrimEnd();
                 }
             }
         }
