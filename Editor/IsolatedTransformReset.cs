@@ -22,7 +22,7 @@ namespace EditorOnlyUtils
         [MenuItem("GameObject/~~ Isolated Transform Reset/Rotation", true)]
         [MenuItem("GameObject/~~ Isolated Transform Reset/Scale", true)]
         [MenuItem("GameObject/~~ Isolated Transform Reset/All", true)]
-		public static bool ValidateBakeTransforms() => Selection.activeTransform != null;
+		public static bool Validate() => Selection.activeTransform != null;
 
 
         [MenuItem("GameObject/~~ Isolated Transform Reset/All", false, 10)]
@@ -40,19 +40,26 @@ namespace EditorOnlyUtils
         public static void ResetScale() => Reset(false, false, true, "Scale");
 
 
-        public static void Reset(bool pos, bool rot, bool scl, string name)
+        /// <summary>
+        /// Locally clear transform attributes without affecting the global attributes of child transforms.
+        /// </summary>
+        /// <param name="pos">Wether to clear position</param>
+        /// <param name="rot">Whether to clear rotation</param>
+        /// <param name="scale">Whether to clear scale</param>
+        /// <param name="attrName">Name(s) of the attribute(s) to be reset, displayed as "Isolated Reset {name}"</param>
+        public static void Reset(bool pos, bool rot, bool scale, string attrName)
         {
-            name = $"Isolated Reset {name}";
+            attrName = $"Isolated Reset {attrName}";
 
             Transform t = Selection.activeTransform;
-            Undo.RecordObject(t.transform, name);
+            Undo.RecordObject(t.transform, attrName);
 
             Dictionary<Transform, (Vector3, Quaternion, Vector3)> transforms = new Dictionary<Transform, (Vector3, Quaternion, Vector3)>();
             for (int i = 0; i < t.childCount; i++)
             {
                 Transform child = t.GetChild(i);
                 transforms.Add(child, (child.position, child.rotation, child.localScale));
-                Undo.RecordObject(child, name);
+                Undo.RecordObject(child, attrName);
             }
 
 
@@ -62,18 +69,18 @@ namespace EditorOnlyUtils
             if (rot)
                 t.localRotation = Quaternion.identity;
 
-            Vector3 scale = t.localScale;
-            if (scl)
+            Vector3 scl = t.localScale;
+            if (scale)
                 t.localScale = Vector3.one;
             else
-                scale = Vector3.one;
+                scl = Vector3.one;
 
 
             foreach (Transform child in transforms.Keys)
             {
                 child.position = transforms[child].Item1;
                 child.rotation = transforms[child].Item2;
-                child.localScale = Vector3.Scale(transforms[child].Item3, scale);
+                child.localScale = Vector3.Scale(transforms[child].Item3, scl);
             }
         }
 
