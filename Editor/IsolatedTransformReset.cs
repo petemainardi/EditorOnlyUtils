@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace MainArtery.Utilities.Editor
+namespace EditorOnlyUtils
 {
 	/// ===========================================================================================
 	/// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -18,60 +18,63 @@ namespace MainArtery.Utilities.Editor
 	/// ===========================================================================================
 	public static class BakeTransforms
     {
-        [MenuItem("GameObject/Isolated Transform Reset/Position", true)]
-        [MenuItem("GameObject/Isolated Transform Reset/Rotation", true)]
-        [MenuItem("GameObject/Isolated Transform Reset/Scale", true)]
-        [MenuItem("GameObject/Isolated Transform Reset/All", true)]
+        [MenuItem("GameObject/~~ Isolated Transform Reset/Position", true)]
+        [MenuItem("GameObject/~~ Isolated Transform Reset/Rotation", true)]
+        [MenuItem("GameObject/~~ Isolated Transform Reset/Scale", true)]
+        [MenuItem("GameObject/~~ Isolated Transform Reset/All", true)]
 		public static bool ValidateBakeTransforms() => Selection.activeTransform != null;
 
 
-        [MenuItem("GameObject/Isolated Transform Reset/Position", false, 11)]
-        public static void ResetPosition() => Reset(true, false, false);
+        [MenuItem("GameObject/~~ Isolated Transform Reset/All", false, 10)]
+        public static void ResetAll() => Reset(true, true, true, "All");
+
+        [MenuItem("GameObject/~~ Isolated Transform Reset/Position", false, 10)]
+        public static void ResetPosition() => Reset(true, false, false, "Position");
 
 
-        [MenuItem("GameObject/Isolated Transform Reset/Rotation", false, 11)]
-        public static void ResetRotation() => Reset(false, true, false);
+        [MenuItem("GameObject/~~ Isolated Transform Reset/Rotation", false, 10)]
+        public static void ResetRotation() => Reset(false, true, false, "Rotation");
 
 
-        [MenuItem("GameObject/Isolated Transform Reset/Scale", false, 11)]
-        public static void ResetScale() => Reset(false, false, true);
+        [MenuItem("GameObject/~~ Isolated Transform Reset/Scale", false, 10)]
+        public static void ResetScale() => Reset(false, false, true, "Scale");
 
 
-        [MenuItem("GameObject/Isolated Transform Reset/All", false, 10)]
-        public static void ResetAll() => Reset(true, true, true);
-
-
-        public static void Reset(bool pos, bool rot, bool scl)
+        public static void Reset(bool pos, bool rot, bool scl, string name)
         {
-            GameObject g = new GameObject();
-            Undo.RegisterCreatedObjectUndo(g, "Isolated Reset All");
+            name = $"Isolated Reset {name}";
 
             Transform t = Selection.activeTransform;
-            Transform[] children = new Transform[t.childCount];
+            Undo.RecordObject(t.transform, name);
 
-            for (int i = 0; i < children.Length; i++)
+            Dictionary<Transform, (Vector3, Quaternion, Vector3)> transforms = new Dictionary<Transform, (Vector3, Quaternion, Vector3)>();
+            for (int i = 0; i < t.childCount; i++)
             {
-                Transform child = t.GetChild(0);
-                Undo.SetTransformParent(child, g.transform, true, "Isolated Reset All");
-                children[i] = child;
+                Transform child = t.GetChild(i);
+                transforms.Add(child, (child.position, child.rotation, child.localScale));
+                Undo.RecordObject(child, name);
             }
 
-            Undo.RecordObject(t.transform, "Isolated Reset All");
+
             if (pos)
-                t.localPosition = Vector3.zero;
+                t.position = Vector3.zero;
+
             if (rot)
                 t.localRotation = Quaternion.identity;
+
+            Vector3 scale = t.localScale;
             if (scl)
                 t.localScale = Vector3.one;
+            else
+                scale = Vector3.one;
 
-            for (int i = 0; i < children.Length; i++)
+
+            foreach (Transform child in transforms.Keys)
             {
-                Undo.SetTransformParent(children[i], t, true, "Isolated Reset All");
-                Undo.RecordObject(children[i].transform, "Isolated Reset All");
-                children[i].SetSiblingIndex(i);
+                child.position = transforms[child].Item1;
+                child.rotation = transforms[child].Item2;
+                child.localScale = Vector3.Scale(transforms[child].Item3, scale);
             }
-
-            Undo.DestroyObjectImmediate(g);
         }
 
 	}

@@ -11,3 +11,8 @@ Or by adding the following to your project's Packages/manifest.json file:
 <blockquote>
 	<p>"com.editoronly.utils": "https://github.com/petemainardi/EditorOnlyUtils.git"</p>
 </blockquote>
+
+## Summary of Functionality
+
+### Isolated Transform Reset
+Menu item visible when a gameobject is selected, resets transform attributes so that they are locally zeroed out without affecting the global transform attributes of the transform's children.
