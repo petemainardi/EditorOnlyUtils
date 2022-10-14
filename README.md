@@ -18,4 +18,6 @@ Or by adding the following to your project's Packages/manifest.json file:
 Menu item visible when a gameobject is selected, resets transform attributes so that they are locally zeroed out without affecting the global transform attributes of the transform's children.
 
 ### Bulk Rename
-Menu item visible when a gameobject is selected, renames selected objects as if they were duplicates of the first selected object.
+Menu item visible when a gameobject is selected, allowing the following options for renaming the selected objects:
+- Rename selected objects as if they were duplicates of the first selected object.
+- Remove Unity-enumerated suffix at the end of each selected object's name.
