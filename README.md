@@ -16,3 +16,6 @@ Or by adding the following to your project's Packages/manifest.json file:
 
 ### Isolated Transform Reset
 Menu item visible when a gameobject is selected, resets transform attributes so that they are locally zeroed out without affecting the global transform attributes of the transform's children.
+
+### Bulk Rename
+Menu item visible when a gameobject is selected, renames selected objects as if they were duplicates of the first selected object.
