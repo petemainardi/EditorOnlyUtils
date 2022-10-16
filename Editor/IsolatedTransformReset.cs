@@ -62,7 +62,8 @@ namespace EditorOnlyUtils
             Transform t = Selection.activeTransform;
             Undo.RecordObject(t.transform, attrName);
 
-            Dictionary<Transform, (Vector3, Quaternion, Vector3)> transforms = new Dictionary<Transform, (Vector3, Quaternion, Vector3)>();
+            Dictionary<Transform, (Vector3 pos, Quaternion rot, Vector3 scale)> transforms =
+                new Dictionary<Transform, (Vector3, Quaternion, Vector3)>();
             for (int i = 0; i < t.childCount; i++)
             {
                 Transform child = t.GetChild(i);
@@ -86,9 +87,9 @@ namespace EditorOnlyUtils
 
             foreach (Transform child in transforms.Keys)
             {
-                child.position = transforms[child].Item1;
-                child.rotation = transforms[child].Item2;
-                child.localScale = Vector3.Scale(transforms[child].Item3, scl);
+                child.position = transforms[child].pos;
+                child.rotation = transforms[child].rot;
+                child.localScale = Vector3.Scale(transforms[child].scale, scl);
             }
         }
 
