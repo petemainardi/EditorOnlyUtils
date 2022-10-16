@@ -16,8 +16,18 @@ namespace EditorOnlyUtils
 	/// ===========================================================================================
 	/// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 	/// ===========================================================================================
-	public static class BakeTransforms
+	public static class IsolatedTransformReset
     {
+        [Flags]
+        public enum TransformAttrs
+        {
+            Position = 1 << 0,
+            Rotation = 1 << 1,
+            Scale    = 1 << 2,
+
+            All = Position | Rotation | Scale
+        }
+
         [MenuItem("GameObject/~~ Isolated Transform Reset/Position", true)]
         [MenuItem("GameObject/~~ Isolated Transform Reset/Rotation", true)]
         [MenuItem("GameObject/~~ Isolated Transform Reset/Scale", true)]
@@ -26,30 +36,28 @@ namespace EditorOnlyUtils
 
 
         [MenuItem("GameObject/~~ Isolated Transform Reset/All", false, 10)]
-        public static void ResetAll() => Reset(true, true, true, "All");
+        public static void ResetAll() => Reset(TransformAttrs.All);
 
         [MenuItem("GameObject/~~ Isolated Transform Reset/Position", false, 10)]
-        public static void ResetPosition() => Reset(true, false, false, "Position");
+        public static void ResetPosition() => Reset(TransformAttrs.Position);
 
 
         [MenuItem("GameObject/~~ Isolated Transform Reset/Rotation", false, 10)]
-        public static void ResetRotation() => Reset(false, true, false, "Rotation");
+        public static void ResetRotation() => Reset(TransformAttrs.Rotation);
 
 
         [MenuItem("GameObject/~~ Isolated Transform Reset/Scale", false, 10)]
-        public static void ResetScale() => Reset(false, false, true, "Scale");
+        public static void ResetScale() => Reset(TransformAttrs.Scale);
 
 
         /// <summary>
         /// Locally clear transform attributes without affecting the global attributes of child transforms.
         /// </summary>
-        /// <param name="pos">Wether to clear position</param>
-        /// <param name="rot">Whether to clear rotation</param>
-        /// <param name="scale">Whether to clear scale</param>
+        /// <param name="attrs">Which attribute(s) to reset</param>
         /// <param name="attrName">Name(s) of the attribute(s) to be reset, displayed as "Isolated Reset {name}"</param>
-        public static void Reset(bool pos, bool rot, bool scale, string attrName)
+        public static void Reset(TransformAttrs attrs)
         {
-            attrName = $"Isolated Reset {attrName}";
+            string attrName = $"Isolated Reset {attrs}";
 
             Transform t = Selection.activeTransform;
             Undo.RecordObject(t.transform, attrName);
@@ -63,14 +71,14 @@ namespace EditorOnlyUtils
             }
 
 
-            if (pos)
+            if ((TransformAttrs.Position & attrs) == TransformAttrs.Position)
                 t.position = Vector3.zero;
 
-            if (rot)
+            if ((TransformAttrs.Rotation & attrs) == TransformAttrs.Rotation)
                 t.localRotation = Quaternion.identity;
 
             Vector3 scl = t.localScale;
-            if (scale)
+            if ((TransformAttrs.Scale & attrs) == TransformAttrs.Scale)
                 t.localScale = Vector3.one;
             else
                 scl = Vector3.one;
